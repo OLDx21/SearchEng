@@ -284,7 +284,7 @@ public class MailClass extends JFrame {
 
             Session mailsesion = Session.getDefaultInstance(properties);
             MimeMessage message = new MimeMessage(mailsesion);
-            message.setFrom(new InternetAddress("internetmagazin070@gmail.com"));
+            message.setFrom(new InternetAddress("***********"));
             message.addRecipients(Message.RecipientType.TO, String.valueOf(new InternetAddress(mail)));
             message.setSubject("Получите 10% скидку за отзыв!");
             message.setText(
@@ -295,7 +295,7 @@ public class MailClass extends JFrame {
                             "После,  как оставите отзыв, дарим 10% скидку !\n" +
                             "Отзыв можно оставить по ссылке - " + ssilka);
             Transport tr = mailsesion.getTransport();
-            tr.connect(null, "Rooney10");
+            tr.connect(null, "******");
             tr.sendMessage(message, message.getAllRecipients());
             tr.close();
         } catch (IOException e) {
