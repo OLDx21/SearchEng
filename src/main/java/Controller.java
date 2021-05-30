@@ -40,7 +40,7 @@ public class Controller extends JFrame {
 
     JFrame jFrame;
     static JPanel panel;
-
+   public static String g =System.getProperty("user.dir");
     Controller() {
 
         try {
@@ -51,6 +51,7 @@ public class Controller extends JFrame {
         } catch (Exception ex) {
             System.err.println("Failed to initialize LaF");
         }
+
         AbstractAction action = new Action();
         jFrame = new JFrame();
         Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -207,7 +208,7 @@ public class Controller extends JFrame {
                         jLabel.setVisible(true);
                         try {
                             try {
-                                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/nameshops.txt")));
+                                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\nameshops.txt")));
                                 String line;
                                 while ((line = br.readLine()) != null) {
                                     if (!line.isEmpty()) {
@@ -216,7 +217,7 @@ public class Controller extends JFrame {
                                 }
 
 
-                                br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/URL.txt")));
+                                br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\URL.txt")));
                                 while ((line = br.readLine()) != null) {
                                     if (!line.isEmpty()) {
                                         UKLList.add(line);

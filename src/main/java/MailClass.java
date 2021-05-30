@@ -10,8 +10,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
-import javax.mail.*;
-import javax.mail.internet.AddressException;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.swing.*;
@@ -21,12 +23,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.*;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -52,13 +58,14 @@ public class MailClass extends JFrame {
     public JCheckBox checkBox9 = new JCheckBox();
     public JCheckBox checkBox10 = new JCheckBox();
     public JCheckBox[] checkBoxes = {checkBox1, checkBox2, checkBox3, checkBox4, checkBox5, checkBox6, checkBox7, checkBox8, checkBox9, checkBox10};
-
+    ArrayList<InfoMail> vrem;
     MailClass() {
         NameList.clear();
         UKLList.clear();
         Ssilki.clear();
+        String g =System.getProperty("user.dir");
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/nameshops.txt")));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\nameshops.txt")));
             String line;
             while ((line = br.readLine()) != null) {
                 if (!line.isEmpty()) {
@@ -67,14 +74,14 @@ public class MailClass extends JFrame {
             }
 
 
-            br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/URL.txt")));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\URL.txt")));
             while ((line = br.readLine()) != null) {
                 if (!line.isEmpty()) {
                     UKLList.add(line);
                 }
             }
 
-            br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/Otzovik.txt")));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\Otzovik.txt")));
             while ((line = br.readLine()) != null) {
                 if (!line.isEmpty()) {
                     Ssilki.add(line);
@@ -208,13 +215,13 @@ public class MailClass extends JFrame {
                         Date date = (Date) datePanel.getModel().getValue();
                         String date2 = dateFormat.format(date);
 
-                        HashMap hashMap = new HashMap();
+
 
 
                         List<FutureTask> list = new ArrayList<>();
 
                         for (int i = 0; i < UKLList.size(); i++) {
-                            Callable<ArrayList<String>> callable15 = new MyCallables(date2, (String) UKLList.get(i));
+                            Callable<ArrayList<InfoMail>> callable15 = new MyCallables(date2, (String) UKLList.get(i));
                             FutureTask futureTask15 = new FutureTask(callable15);
                             new Thread(futureTask15).start();
 
@@ -225,28 +232,28 @@ public class MailClass extends JFrame {
                         for (FutureTask f : list) {
 
                             try {
-                                ar[forchecked] = ((ArrayList<String>) f.get());
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            } catch (ExecutionException e) {
+                                ar[forchecked] = ((ArrayList<InfoMail>) f.get());
+                            } catch (InterruptedException | ExecutionException e) {
                                 e.printStackTrace();
                             }
                             forchecked += 1;
                         }
 
 
-                        hashMap = Nametovar.getHashMap();
-                        String ssilka = null;
+
+
+
                         for (int n = 0; n < NameList.size(); n++) {
-                            for (int i = 0; i < ar[n].size() / 2; i++) {
+                            vrem = new ArrayList<>();
+                            vrem.addAll(ar[n]);
+
+                            for (int i = 0; i < ar[n].size(); i++) {
 
                                 if (!checkBoxes[n].isSelected()) {
                                     continue;
                                 }
-                                ssilka = Ssilki.get(n).toString();
 
-
-                                sendmail(ar[n].get((ar[n].size() / 2) + i).toString(), ar[n].get(i).toString(), hashMap.get(ar[n].get((ar[n].size() / 2) + i)).toString(), ssilka);
+                               sendmail(vrem.get(i).getName(), vrem.get(i).getMail(), vrem.get(i).getItemName(), Ssilki.get(n));
                             }
                         }
 
@@ -284,7 +291,7 @@ public class MailClass extends JFrame {
 
             Session mailsesion = Session.getDefaultInstance(properties);
             MimeMessage message = new MimeMessage(mailsesion);
-            message.setFrom(new InternetAddress("***********"));
+            message.setFrom(new InternetAddress("internetmagazin070@gmail.com"));
             message.addRecipients(Message.RecipientType.TO, String.valueOf(new InternetAddress(mail)));
             message.setSubject("Получите 10% скидку за отзыв!");
             message.setText(
@@ -295,22 +302,16 @@ public class MailClass extends JFrame {
                             "После,  как оставите отзыв, дарим 10% скидку !\n" +
                             "Отзыв можно оставить по ссылке - " + ssilka);
             Transport tr = mailsesion.getTransport();
-            tr.connect(null, "******");
+            tr.connect(null, "Rooney10");
             tr.sendMessage(message, message.getAllRecipients());
             tr.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (AddressException e) {
-            e.printStackTrace();
-        } catch (NoSuchProviderException e) {
-            e.printStackTrace();
-        } catch (MessagingException e) {
+        } catch (IOException | MessagingException e) {
             e.printStackTrace();
         }
     }
 }
 
-class MyCallables implements Callable<ArrayList<String>> {
+class MyCallables implements Callable<ArrayList<InfoMail>> {
 
     String keyword;
     String magaz;
@@ -331,10 +332,9 @@ class MyCallables implements Callable<ArrayList<String>> {
 
 
     @Override
-    public ArrayList<String> call() throws Exception {
-        HashMap hashMap = new HashMap();
-        ArrayList<String> arrayList = new ArrayList();
-        ArrayList arrayList1 = new ArrayList();
+    public ArrayList<InfoMail> call() throws Exception {
+
+        ArrayList<InfoMail> infos = new ArrayList<>();
 
 
         try {
@@ -385,10 +385,9 @@ class MyCallables implements Callable<ArrayList<String>> {
 
                             g = name.indexOf(" ");
                             a = name.indexOf(" ", g + 1);
-                            arrayList1.add(name.substring(g + 1, a));
+                            System.out.println(name +" "+ mail+" "+namezakaz);
+                            infos.add(new InfoMail(mail, name.substring(g + 1, a), namezakaz));
 
-                            hashMap.put(name.substring(g + 1, a), namezakaz);
-                            arrayList.add(mail);
                         }
                     }
 
@@ -396,8 +395,7 @@ class MyCallables implements Callable<ArrayList<String>> {
             }
 
 
-            Nametovar.setHashMap(hashMap);
-            arrayList.addAll(arrayList1);
+
             doc = null;
             nList = null;
             nList2 = null;
@@ -421,7 +419,7 @@ class MyCallables implements Callable<ArrayList<String>> {
         }
 
 
-        return arrayList;
+        return infos;
     }
 
     public static String removeCharAt(String s, int pos) {

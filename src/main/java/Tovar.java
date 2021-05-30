@@ -97,7 +97,7 @@ public class Tovar extends JFrame {
         table = new JTable(defaultTableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;
+                return true;
             }
         };
 

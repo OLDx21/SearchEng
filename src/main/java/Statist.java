@@ -71,7 +71,7 @@ public class Statist extends JFrame {
 
     Statist() {
 
-
+        String g =System.getProperty("user.dir");
         try {
             //   FlatDarkPurpleIJTheme.install();
             //  FlatDarculaLaf.install();
@@ -101,7 +101,7 @@ public class Statist extends JFrame {
         }
 
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/nameshops.txt")));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\nameshops.txt")));
             String line;
             while ((line = br.readLine()) != null) {
                 if (!line.isEmpty()) {
@@ -110,7 +110,7 @@ public class Statist extends JFrame {
             }
 
 
-            br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/URL.txt")));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\URL.txt")));
             while ((line = br.readLine()) != null) {
                 if (!line.isEmpty()) {
                     UKLList.add(line);
