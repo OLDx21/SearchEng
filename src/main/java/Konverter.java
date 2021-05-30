@@ -32,20 +32,20 @@ public class Konverter extends JFrame {
     int finalI = 0;
 
     Konverter() {
-
-        File file5 = new File("C:\\Program Files\\new\\new2");
-        if (file5.exists() == false) {
+        String g =System.getProperty("user.dir");
+        File file5 = new File(g+"\\new2");
+        if (!file5.exists()) {
             file5.mkdir();
-            file5 = new File("C:\\Program Files\\new\\excelfiles");
+            file5 = new File(g+"\\excelfiles");
             file5.mkdir();
 
 
             try {
-                FileOutputStream fileOut = new FileOutputStream("C:\\Program Files\\new\\new2\\shops.dtd");
+                FileOutputStream fileOut = new FileOutputStream(g+"\\new2\\shops.dtd");
                 fileOut.close();
-                fileOut = new FileOutputStream("C:\\Program Files\\new\\new2\\wow.xml");
+                fileOut = new FileOutputStream(g+"\\new2\\wow.xml");
                 fileOut.close();
-                fileOut = new FileOutputStream("C:\\Program Files\\new\\zakaz.txt");
+                fileOut = new FileOutputStream(g+"\\zakaz.txt");
                 fileOut.close();
                 fileOut.flush();
             } catch (IOException e) {
@@ -112,7 +112,7 @@ public class Konverter extends JFrame {
         jButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArrayList arrayList = new ArrayList();
+                ArrayList<String> arrayList = new ArrayList<>();
 
                 Info2 info = new Info2();
                 jLabel.setVisible(true);
@@ -120,7 +120,7 @@ public class Konverter extends JFrame {
 
                 try {
                     BufferedReader bufferedReader = new BufferedReader(
-                            new InputStreamReader(new FileInputStream("C:\\Program Files\\new\\zakaz.txt"), "UTF-8"));
+                            new InputStreamReader(new FileInputStream(g+"\\zakaz.txt"), "UTF-8"));
 
 
                     String line;
@@ -135,10 +135,6 @@ public class Konverter extends JFrame {
                     bufferedReader.close();
                     vseggo.setText("Всего файлов: " + String.valueOf(arrayList.size()));
 
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                } catch (FileNotFoundException ex) {
-                    ex.printStackTrace();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -204,7 +200,7 @@ public class Konverter extends JFrame {
                                 Connection.disconnect();
 
 
-                                fileWriter = new FileWriter("C:\\Program Files\\new\\new2\\wow.xml");
+                                fileWriter = new FileWriter(g+"\\new2\\wow.xml");
 
                                 fileWriter.write(String.valueOf(sb));
                                 fileWriter.flush();
@@ -228,7 +224,7 @@ public class Konverter extends JFrame {
                                     dBuilder = dbFactory.newDocumentBuilder();
 
 
-                                    doc = dBuilder.parse("C:\\Program Files\\new\\new2\\wow.xml");
+                                    doc = dBuilder.parse(g+"\\new2\\wow.xml");
 
 
                                     doc.getDocumentElement().normalize();
@@ -292,7 +288,7 @@ public class Konverter extends JFrame {
                                     eElement = null;
                                     if (finalI1 + 1 == arrayList.size()) {
 
-                                        FileOutputStream fileOut = new FileOutputStream("C:\\Program Files\\new\\excelfiles\\" + String.valueOf(finalI1 + 1) + ".xlsx");
+                                        FileOutputStream fileOut = new FileOutputStream(g+"\\excelfiles\\" + String.valueOf(finalI1 + 1) + ".xlsx");
                                         workbook.write(fileOut);
                                         fileOut.close();
                                         workbook.close();
@@ -309,11 +305,7 @@ public class Konverter extends JFrame {
                                     }
 
                                     System.gc();
-                                } catch (SAXException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (ParserConfigurationException e) {
+                                } catch (SAXException | ParserConfigurationException | IOException e) {
                                     e.printStackTrace();
                                 }
 

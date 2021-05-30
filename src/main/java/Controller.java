@@ -1,14 +1,5 @@
 import com.formdev.flatlaf.intellijthemes.FlatDarkPurpleIJTheme;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.TextFieldTableCell;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -17,6 +8,7 @@ import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -24,7 +16,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,19 +31,15 @@ public class Controller extends JFrame {
 
 
     static JLabel jLabel = new JLabel();
-
-
-    static TableColumn<Infoclient, String> clmidzakaz;
-    static TableColumn<Infoclient, String> clmnamemale;
-    static TableColumn<Infoclient, String> clmnphone;
-    static TableColumn<Infoclient, String> clmdate;
+    static JTable table;
+    static DefaultTableModel defaultTableModel;
     static JButton jButton;
-    static TableColumn<Infoclient, String> clshop;
-    static ArrayList UKLList = new ArrayList();
-    static ArrayList NameList = new ArrayList();
+    static ArrayList<String> UKLList = new ArrayList<>();
+    static ArrayList<String> NameList = new ArrayList<>();
     static JTextField textField;
-    static TableView<Infoclient> tableView;
-    static TableColumn<Infoclient, Number> clmnid = new TableColumn<Infoclient, Number>("№");
+
+    JFrame jFrame;
+    static JPanel panel;
 
     Controller() {
 
@@ -61,13 +52,13 @@ public class Controller extends JFrame {
             System.err.println("Failed to initialize LaF");
         }
         AbstractAction action = new Action();
-        JFrame jFrame = new JFrame();
+        jFrame = new JFrame();
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension dimension = toolkit.getScreenSize();
 
         jFrame.setBounds(dimension.width / 3 - 100, dimension.height / 3 - 100, 900, 550);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JPanel panel = new JPanel();
+        panel = new JPanel();
 
         panel.setLayout(null);
         jFrame.setResizable(false);
@@ -123,51 +114,57 @@ public class Controller extends JFrame {
         textField.setBounds(246, 12, 212, 30);
 
         textField.setToolTipText("Любое ключевое слово");
-        //Table
-        JFXPanel jfxPanel = new JFXPanel();
-        tableView = new TableView();
 
-        jfxPanel.setBounds(45, 94, 800, 400);
-
-
-        tableView.setMaxHeight(400);
-        tableView.setMaxWidth(800);
-
-
-        clshop = new TableColumn<Infoclient, String>("Магазин");
-        clmidzakaz = new TableColumn<Infoclient, String>("ID");
-        clmnamemale = new TableColumn<Infoclient, String>("Имя фамилия");
-        ;
-        clmnphone = new TableColumn<Infoclient, String>("Телефончик");
-        clmdate = new TableColumn<Infoclient, String>("Дата");
-
-        clmnid.setPrefWidth(31);
-        clshop.setPrefWidth(133);
-        clmidzakaz.setPrefWidth(120);
-        clmnamemale.setPrefWidth(233);
-        clmnphone.setPrefWidth(165);
-        clmdate.setPrefWidth(117);
-
-        tableView.getStylesheets().add("CSSstyle/styletable.css");
 //
+        defaultTableModel = new DefaultTableModel();
+        defaultTableModel.addColumn("№");
+        defaultTableModel.addColumn("Магазин");
+        defaultTableModel.addColumn("ID");
+        defaultTableModel.addColumn("Имя Фамилия");
+        defaultTableModel.addColumn("Телефончик");
+        defaultTableModel.addColumn("Дата");
+
+
+        table = new JTable(defaultTableModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        table.setBounds(45, 94, 800, 400);
+        table.setForeground(Color.decode("#0ed9e0"));
+        table.setGridColor(Color.lightGray);
+        table.setRowHeight(25);
+        table.setSelectionBackground(Color.decode("#005797"));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setShowGrid(true);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        table.getColumnModel().getColumn(0).setPreferredWidth(31);
+        table.getColumnModel().getColumn(1).setPreferredWidth(133);
+        table.getColumnModel().getColumn(2).setPreferredWidth(120);
+        table.getColumnModel().getColumn(3).setPreferredWidth(233);
+        table.getColumnModel().getColumn(4).setPreferredWidth(165);
+        table.getColumnModel().getColumn(5).setPreferredWidth(117);
+
+        table.setFillsViewportHeight(true);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBounds(45, 94, 800, 400);
+
+
         URL url = this.getClass().getResource("loading.gif");
         Icon myImgIcon = new ImageIcon(url);
         jLabel = new JLabel(myImgIcon);
         jLabel.setBounds(400, 43, 50, 50);
         jLabel.setVisible(false);
-        tableView.getColumns().addAll(clmnid, clshop, clmidzakaz, clmnamemale, clmnphone, clmdate);
-        Group group = new Group();
-        Scene scene = new Scene(group);
-        group.getChildren().addAll(tableView);
-        jfxPanel.setScene(scene);
 
 
         panel.setComponentPopupMenu(popupMenu);
+        panel.add(scrollPane);
         panel.add(jLabel);
         panel.add(textField);
         panel.add(jButton);
         jFrame.setJMenuBar(jMenuBar);
-        panel.add(jfxPanel);
 
         JFrame.setDefaultLookAndFeelDecorated(true);
         panel.revalidate();
@@ -177,47 +174,26 @@ public class Controller extends JFrame {
 
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                Controller controller = new Controller();
-
-            }
-        });
+    public static void arttable(ArrayList<String[]> data) {
 
 
-    }
+        defaultTableModel.setRowCount(0);
 
-    public static void arttable(ObservableList<Infoclient> info, TableView tableView, TableColumn<Infoclient, String> clshop, TableColumn<Infoclient, String> clmidzakaz, TableColumn<Infoclient, String> clmnphone
-            , TableColumn<Infoclient, String> clmdate, TableColumn<Infoclient, String> clmnamemale) {
+        for (int i = 0; i < data.size(); i++) {
+            data.get(i)[0] = String.valueOf(i+1);
+            defaultTableModel.addRow(data.get(i));
 
-        clshop.setCellFactory(TextFieldTableCell.forTableColumn());
-        clshop.setCellValueFactory(cellData -> cellData.getValue().getShop());
-
-        clmnamemale.setCellFactory(TextFieldTableCell.forTableColumn());
-        clmnamemale.setCellValueFactory(cellData -> cellData.getValue().getname());
-
-        clmnphone.setCellFactory(TextFieldTableCell.forTableColumn());
-        clmnphone.setCellValueFactory(cellData -> cellData.getValue().getPhone());
-
-        clmdate.setCellFactory(TextFieldTableCell.forTableColumn());
-        clmdate.setCellValueFactory(cellData -> cellData.getValue().getDate());
-
-        clmidzakaz.setCellFactory(TextFieldTableCell.forTableColumn());
-        clmidzakaz.setCellValueFactory(cellData -> cellData.getValue().getid());
+        }
 
 
-        clmnid.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<Number>(tableView.getItems().indexOf(cellData.getValue()) + 1));
-
-        tableView.setItems(info);
-
-
+        System.gc();
     }
 
     static class Action extends AbstractAction {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+
             if ((!textField.getText().trim().equals("")) && (textField.getText().length() >= 3)) {
 
                 NameList.clear();
@@ -254,19 +230,19 @@ public class Controller extends JFrame {
                             }
 
 
-                            ObservableList<Infoclient> info = FXCollections.observableArrayList();
 
+                            ArrayList<String[]> info = new ArrayList<>();
                             List<FutureTask> list = new ArrayList<>();
                             for (int i = 0; i < UKLList.size(); i++) {
 
-                                Callable<ObservableList<Infoclient>> callable15 = new MyCallable(textField.getText().toLowerCase(), (String) UKLList.get(i), (String) NameList.get(i));
+                                Callable<ArrayList<String[]>> callable15 = new MyCallable(textField.getText().toLowerCase(), (String) UKLList.get(i), (String) NameList.get(i));
                                 FutureTask futureTask15 = new FutureTask(callable15);
                                 new Thread(futureTask15).start();
 
                                 list.add(futureTask15);
                             }
                             for (FutureTask f : list) {
-                                info.addAll((ObservableList<Infoclient>) f.get());
+                                info.addAll((ArrayList<String[]>) f.get());
                             }
 
                             if (info.size() == 0) {
@@ -281,8 +257,7 @@ public class Controller extends JFrame {
                                 });
 
                             } else {
-
-                                arttable(info, tableView, clshop, clmidzakaz, clmnphone, clmdate, clmnamemale);
+                                arttable(info);
                                 jButton.setEnabled(true);
                                 jLabel.setVisible(false);
                             }
@@ -307,24 +282,10 @@ public class Controller extends JFrame {
         }
     }
 
-    static class ActioNeWindow extends AbstractAction {
-        JFrame old;
-        JFrame now;
 
-        ActioNeWindow(JFrame old, JFrame now) {
-            this.old = old;
-            this.now = now;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            old.setVisible(true);
-            now.setVisible(true);
-        }
-    }
 }
 
-class MyCallable implements Callable<ObservableList<Infoclient>> {
+class MyCallable implements Callable<ArrayList<String[]>> {
     String shop;
     String keyword;
     String magaz;
@@ -344,9 +305,10 @@ class MyCallable implements Callable<ObservableList<Infoclient>> {
 
 
     @Override
-    public ObservableList<Infoclient> call() throws Exception {
+    public ArrayList<String[]> call() throws Exception {
 
-        ObservableList<Infoclient> info = FXCollections.observableArrayList();
+
+        ArrayList<String[]> items = new ArrayList<>();
 
 
         try {
@@ -378,8 +340,7 @@ class MyCallable implements Callable<ObservableList<Infoclient>> {
 
                     if (id.contains(keyword) || name.toLowerCase().contains(keyword) || phone.contains(keyword) || date.contains(keyword)) {
 
-
-                        info.add(new Infoclient(id, name, phone, date, shop));
+                        items.add(new String[]{"", shop, id, name, phone, date});
 
 
                     }
@@ -410,7 +371,7 @@ class MyCallable implements Callable<ObservableList<Infoclient>> {
         }
 
 
-        return info;
+        return items;
     }
 }
 

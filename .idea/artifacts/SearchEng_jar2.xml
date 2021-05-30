@@ -1,7 +1,23 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="SearchEng:jar2">
+  <artifact type="javafx" name="SearchEng:jar2">
     <output-path>$PROJECT_DIR$/out/artifacts/SearchEng_jar2</output-path>
-    <root id="archive" name="SearchEng.jar">
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="Main" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="icons">
+          <JavaFxApplicationIcons>
+            <option name="windowsIcon" value="$PROJECT_DIR$/src/main/resources/load.ico" />
+          </JavaFxApplicationIcons>
+        </option>
+        <option name="nativeBundle" value="all" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
       <element id="module-output" name="SearchEng" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/xmlbeans/xmlbeans/3.1.0/xmlbeans-3.1.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/formdev/flatlaf/1.1.1/flatlaf-1.1.1.jar" path-in-jar="/" />

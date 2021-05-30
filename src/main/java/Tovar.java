@@ -1,18 +1,10 @@
 import com.formdev.flatlaf.intellijthemes.FlatDarkPurpleIJTheme;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.TextFieldTableCell;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -27,22 +19,14 @@ import java.util.concurrent.FutureTask;
 
 public class Tovar extends JFrame {
 
-
+    static JTable table;
+    static DefaultTableModel defaultTableModel;
     static JLabel jLabel = new JLabel();
-
-
-    static TableColumn<Allzakaz, String> clmnidtovara;
-    static TableColumn<Allzakaz, String> clmncost;
-    static TableColumn<Allzakaz, String> clmnssilka;
-
     static JButton jButton;
-    static TableColumn<Allzakaz, String> clshop;
-
-    static ArrayList NameList = new ArrayList();
+    static ArrayList<String> NameList = new ArrayList<>();
     static JTextField textField;
     static JTextField textFieldid;
-    static TableView<Allzakaz> tableView;
-    static TableColumn<Allzakaz, Number> clmnid = new TableColumn<Allzakaz, Number>("№");
+
 
     Tovar() {
 
@@ -104,42 +88,47 @@ public class Tovar extends JFrame {
         textFieldid.setToolTipText("Код");
         textField.setToolTipText("Название");
         //Table
-        JFXPanel jfxPanel = new JFXPanel();
-        tableView = new TableView();
+        defaultTableModel = new DefaultTableModel();
+        defaultTableModel.addColumn("№");
+        defaultTableModel.addColumn("Магазин");
+        defaultTableModel.addColumn("ID");
+        defaultTableModel.addColumn("Цена");
+        defaultTableModel.addColumn("Ссылка");
+        table = new JTable(defaultTableModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
-        jfxPanel.setBounds(45, 94, 800, 400);
+        table.setBounds(45, 94, 800, 400);
+        table.setForeground(Color.decode("#0ed9e0"));
+        table.setGridColor(Color.lightGray);
+        table.setRowHeight(25);
+        table.setSelectionBackground(Color.decode("#005797"));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setShowGrid(true);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        table.getColumnModel().getColumn(0).setPreferredWidth(29);
+        table.getColumnModel().getColumn(1).setPreferredWidth(96);
+        table.getColumnModel().getColumn(2).setPreferredWidth(112);
+        table.getColumnModel().getColumn(3).setPreferredWidth(84);
+        table.getColumnModel().getColumn(4).setPreferredWidth(478);
 
 
-        tableView.setMaxHeight(400);
-        tableView.setMaxWidth(800);
+        table.setFillsViewportHeight(true);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBounds(45, 94, 800, 400);
 
-
-        clshop = new TableColumn<Allzakaz, String>("Магазин");
-        clmnidtovara = new TableColumn<Allzakaz, String>("ID");
-        clmncost = new TableColumn<Allzakaz, String>("Цена");
-
-        clmnssilka = new TableColumn<Allzakaz, String>("Ссылка");
-
-
-        clmnid.setPrefWidth(29);
-        clshop.setPrefWidth(96);
-        clmnidtovara.setPrefWidth(112);
-        clmncost.setPrefWidth(84);
-        clmnssilka.setPrefWidth(478);
-
-
-        tableView.getStylesheets().add("CSSstyle/styletable.css");
 
         URL url = this.getClass().getResource("loading.gif");
         Icon myImgIcon = new ImageIcon(url);
         jLabel = new JLabel(myImgIcon);
         jLabel.setBounds(0, 0, 50, 50);
         jLabel.setVisible(false);
-        tableView.getColumns().addAll(clmnid, clshop, clmnidtovara, clmncost, clmnssilka);
-        Group group = new Group();
-        Scene scene = new Scene(group);
-        group.getChildren().addAll(tableView);
-        jfxPanel.setScene(scene);
+
+
+
 
 
         panel.add(textFieldid);
@@ -147,7 +136,7 @@ public class Tovar extends JFrame {
         panel.add(textField);
         panel.add(jButton);
         jFrame.setJMenuBar(jMenuBar);
-        panel.add(jfxPanel);
+        panel.add(scrollPane);
         JFrame.setDefaultLookAndFeelDecorated(true);
         panel.revalidate();
 
@@ -199,12 +188,11 @@ public class Tovar extends JFrame {
                         }
                         try {
 
-                            ObservableList<Allzakaz> info = FXCollections.observableArrayList();
 
-
+                            ArrayList<String[]> items = new ArrayList<>();
                             List<FutureTask> list = new ArrayList<>();
                             for (int i = 0; i < NameList.size(); i++) {
-                                Callable<ObservableList<Allzakaz>> callable5 = new MyCallablee(path.toLowerCase(), lst.get(i).toString(), NameList.get(i).toString());
+                                Callable<ArrayList<String[]>> callable5 = new MyCallablee(path.toLowerCase(), lst.get(i).toString(), NameList.get(i).toString());
 
                                 FutureTask futureTask15 = new FutureTask(callable5);
                                 new Thread(futureTask15).start();
@@ -212,9 +200,9 @@ public class Tovar extends JFrame {
                                 list.add(futureTask15);
                             }
                             for (FutureTask f : list) {
-                                info.addAll((ObservableList<Allzakaz>) f.get());
+                                items.addAll((ArrayList<String[]>) f.get());
                             }
-                            if (info.size() == 0) {
+                            if (items.size() == 0) {
 
                                 Platform.runLater(new Runnable() {
                                     @Override
@@ -225,9 +213,10 @@ public class Tovar extends JFrame {
                                     }
                                 });
                             } else {
-                                arttable(info);
+                                System.out.println(items.size());
+                                arttable(items);
                                 jLabel.setVisible(false);
-                                info = null;
+                                items = null;
                                 jButton.setEnabled(true);
                                 System.gc();
 
@@ -245,27 +234,25 @@ public class Tovar extends JFrame {
         }
     }
 
-    public static void arttable(ObservableList<Allzakaz> info) {
-        clmnidtovara.setCellFactory(TextFieldTableCell.forTableColumn());
-        clmnidtovara.setCellValueFactory(cellData -> cellData.getValue().getId());
 
-        clmnssilka.setCellFactory(TextFieldTableCell.forTableColumn());
-        clmnssilka.setCellValueFactory(cellData -> cellData.getValue().getSsilka());
+    public static void arttable(ArrayList<String[]> data) {
 
-        clmncost.setCellFactory(TextFieldTableCell.forTableColumn());
-        clmncost.setCellValueFactory(cellData -> cellData.getValue().getPrice());
+        defaultTableModel.setRowCount(0);
 
-        clshop.setCellFactory(TextFieldTableCell.forTableColumn());
-        clshop.setCellValueFactory(cellData -> cellData.getValue().getShopp());
-        clmnid.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<Number>(tableView.getItems().indexOf(cellData.getValue()) + 1));
-        tableView.setItems(info);
+        for (int i = 0; i < data.size(); i++) {
+            data.get(i)[0] = String.valueOf(i+1);
+            defaultTableModel.addRow(data.get(i));
 
+        }
+
+
+        System.gc();
     }
 
 
 }
 
-class MyCallablee implements Callable<ObservableList<Allzakaz>> {
+class MyCallablee implements Callable<ArrayList<String[]>> {
     String shop;
     String keyword;
     String path;
@@ -292,9 +279,10 @@ class MyCallablee implements Callable<ObservableList<Allzakaz>> {
 
 
     @Override
-    public ObservableList<Allzakaz> call() throws Exception {
+    public ArrayList<String[]> call() throws Exception {
 
-        ObservableList<Allzakaz> info = FXCollections.observableArrayList();
+        ArrayList<String[]> items = new ArrayList<>();
+
         try {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(new FileInputStream(path), "UTF-8"));
@@ -366,7 +354,8 @@ class MyCallablee implements Callable<ObservableList<Allzakaz>> {
                     name = output.substring(c + 5, b).intern();
 
 
-                    info.add(new Allzakaz(name, shop, code.toUpperCase(), price));
+                    items.add(new String[]{"", shop, code.toUpperCase(), price, name});
+
                     i = a - 5;
                     a = null;
                     vd = null;
@@ -405,6 +394,6 @@ class MyCallablee implements Callable<ObservableList<Allzakaz>> {
 
 
         }
-        return info;
+        return items;
     }
 }

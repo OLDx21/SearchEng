@@ -14,14 +14,17 @@ public class Settings extends JFrame {
     public StringBuilder stringBuilder = new StringBuilder();
 
     Settings() {
-        File file = new File("C:\\Program Files\\new/URL.txt");
-        if (file.isFile() == false) {
+        String g =System.getProperty("user.dir");
+
+        File file = new File(g+"\\URL.txt");
+
+        if (!file.isFile()) {
             try {
-                FileOutputStream fileOut = new FileOutputStream("C:\\Program Files\\new/URL.txt");
+                FileOutputStream fileOut = new FileOutputStream(g+"\\URL.txt");
                 fileOut.close();
-                fileOut = new FileOutputStream("C:\\Program Files\\new/nameshops.txt");
+                fileOut = new FileOutputStream(g+"\\nameshops.txt");
                 fileOut.close();
-                fileOut = new FileOutputStream("C:\\Program Files\\new/Otzovik.txt");
+                fileOut = new FileOutputStream(g+"\\Otzovik.txt");
                 fileOut.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -102,7 +105,7 @@ public class Settings extends JFrame {
 //
 
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/nameshops.txt")));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\nameshops.txt")));
             String line;
             while ((line = br.readLine()) != null) {
                 stringBuilder.append(line + "\n");
@@ -110,14 +113,14 @@ public class Settings extends JFrame {
             textArea1.setText(stringBuilder.toString());
             stringBuilder.delete(0, stringBuilder.length());
 
-            br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/URL.txt")));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\URL.txt")));
             while ((line = br.readLine()) != null) {
                 stringBuilder.append(line + "\n");
             }
             textArea2.setText(stringBuilder.toString());
             br.close();
             stringBuilder.delete(0, stringBuilder.length());
-            br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Program Files\\new/Otzovik.txt")));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(g+"\\Otzovik.txt")));
             while ((line = br.readLine()) != null) {
                 stringBuilder.append(line + "\n");
             }
@@ -137,13 +140,13 @@ public class Settings extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    FileWriter fileWriter = new FileWriter("C:\\Program Files\\new/nameshops.txt");
+                    FileWriter fileWriter = new FileWriter(g+"\\nameshops.txt");
                     fileWriter.write(textArea1.getText());
                     fileWriter.flush();
-                    fileWriter = new FileWriter("C:\\Program Files\\new/URL.txt");
+                    fileWriter = new FileWriter(g+"\\URL.txt");
                     fileWriter.write(textArea2.getText());
                     fileWriter.flush();
-                    fileWriter = new FileWriter("C:\\Program Files\\new/Otzovik.txt");
+                    fileWriter = new FileWriter(g+"\\Otzovik.txt");
                     fileWriter.write(textArea3.getText());
                     fileWriter.flush();
 
