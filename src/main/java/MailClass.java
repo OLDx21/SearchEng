@@ -247,11 +247,13 @@ public class MailClass extends JFrame {
                             vrem = new ArrayList<>();
                             vrem.addAll(ar[n]);
 
+                            if (!checkBoxes[n].isSelected()) {
+                                continue;
+                            }
+
                             for (int i = 0; i < ar[n].size(); i++) {
 
-                                if (!checkBoxes[n].isSelected()) {
-                                    continue;
-                                }
+
 
                                sendmail(vrem.get(i).getName(), vrem.get(i).getMail(), vrem.get(i).getItemName(), Ssilki.get(n));
                             }
@@ -302,7 +304,7 @@ public class MailClass extends JFrame {
                             "После,  как оставите отзыв, дарим 10% скидку !\n" +
                             "Отзыв можно оставить по ссылке - " + ssilka);
             Transport tr = mailsesion.getTransport();
-            tr.connect(null, "Rooney10");
+            tr.connect(null, Paswords.PASSWORD);
             tr.sendMessage(message, message.getAllRecipients());
             tr.close();
         } catch (IOException | MessagingException e) {
@@ -407,15 +409,11 @@ class MyCallables implements Callable<ArrayList<InfoMail>> {
             System.gc();
 
 
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
+        } catch (SAXException | IOException | ParserConfigurationException e) {
             e.printStackTrace();
         } catch (NullPointerException l) {
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
 
